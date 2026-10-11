@@ -153,6 +153,7 @@ Column {
         spacing: Style.space(10)
 
         Avatar {
+          svc: root.svc
           anchors.verticalCenter: parent.verticalCenter
           size: Style.space(32)
           picture: modelData.picture

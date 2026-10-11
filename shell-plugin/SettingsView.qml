@@ -347,6 +347,7 @@ Column {
           implicitHeight: Style.space(34)
 
           Avatar {
+            svc: root.svc
             id: mutedAvatar
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter

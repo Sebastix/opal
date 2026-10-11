@@ -178,6 +178,7 @@ Column {
           width: Style.space(32)
           height: Style.space(32)
           Avatar {
+            svc: root.svc
             anchors.fill: parent
             size: parent.width
             picture: modelData.author_picture || ""

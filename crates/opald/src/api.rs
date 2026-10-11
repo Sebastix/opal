@@ -773,6 +773,17 @@ pub async fn dispatch(app: &Arc<App>, peer: &Peer, method: &str, params: Value) 
             // Returned inline (no file): the URI inside holds a login secret.
             Ok(json!({"data_url": opal_kit::qr::svg_data_url(&p.data)?}))
         }
+        "image.thumbnail" => {
+            // A profile picture or album art for the panel, as a small PNG
+            // from Opal's cache: the shell never loads the URL itself.
+            #[derive(Deserialize)]
+            struct P {
+                url: String,
+            }
+            let p: P = parse(params)?;
+            let path = crate::thumbs::thumbnail(&p.url).await;
+            Ok(json!({"path": path.map(|p| p.to_string_lossy().into_owned())}))
+        }
         // ── Identity ────────────────────────────────────────────────────
         "identity.resolve" => {
             // npub, nprofile, hex, or a NIP-05 address.

@@ -255,7 +255,7 @@ pub async fn nostr_popup(app: &Arc<App>, n: opal_notify::Notification) {
         _ => n.detail.clone(),
     };
     let avatar = match profile.as_ref().and_then(|p| p.picture.clone()) {
-        Some(url) => cached_avatar(&n.author, &url).await,
+        Some(url) => crate::thumbs::thumbnail(&url).await,
         None => None,
     };
 
@@ -291,82 +291,6 @@ fn short_hex(hex: &str) -> String {
         .and_then(|pk| pk.to_bech32().ok())
         .map(|npub| format!("{}…", &npub[..12]))
         .unwrap_or_else(|| hex.chars().take(8).collect())
-}
-
-/// Largest avatar we download, and how many we keep.
-const AVATAR_MAX_BYTES: &str = "524288";
-const AVATAR_CACHE_MAX: usize = 300;
-
-/// Download an avatar once into ~/.cache/opal/avatars (the notification
-/// daemon only shows local images). Keyed on pubkey + URL so a changed
-/// picture is fetched again; old files are pruned.
-async fn cached_avatar(pubkey: &str, url: &str) -> Option<std::path::PathBuf> {
-    if !url.starts_with("https://") || !pubkey.chars().all(|c| c.is_ascii_hexdigit()) {
-        return None;
-    }
-    let dir = opal_core::paths::cache_dir().join("avatars");
-    let name = format!("{pubkey}-{:016x}", fnv(url));
-    let path = dir.join(&name);
-    if path.metadata().is_ok_and(|m| m.len() > 0) {
-        return Some(path);
-    }
-    std::fs::create_dir_all(&dir).ok()?;
-    let tmp = dir.join(format!("{name}.part"));
-    let fetch = tokio::process::Command::new("curl")
-        .args([
-            "-fsL",
-            "--max-time",
-            "6",
-            "--max-filesize",
-            AVATAR_MAX_BYTES,
-            "--max-redirs",
-            "3",
-            "--proto",
-            "=https",
-            "--proto-redir",
-            "=https",
-            "-o",
-        ])
-        .arg(&tmp)
-        .arg("--")
-        .arg(url)
-        .kill_on_drop(true)
-        .status();
-    let ok = matches!(
-        tokio::time::timeout(Duration::from_secs(8), fetch).await,
-        Ok(Ok(s)) if s.success()
-    );
-    if ok && tmp.metadata().is_ok_and(|m| m.len() > 0) && std::fs::rename(&tmp, &path).is_ok() {
-        prune_avatars(&dir);
-        Some(path)
-    } else {
-        let _ = std::fs::remove_file(&tmp);
-        None
-    }
-}
-
-fn prune_avatars(dir: &std::path::Path) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    let mut files: Vec<(std::time::SystemTime, std::path::PathBuf)> = entries
-        .flatten()
-        .filter_map(|e| Some((e.metadata().ok()?.modified().ok()?, e.path())))
-        .collect();
-    if files.len() <= AVATAR_CACHE_MAX {
-        return;
-    }
-    files.sort();
-    for (_, p) in files.iter().take(files.len() - AVATAR_CACHE_MAX) {
-        let _ = std::fs::remove_file(p);
-    }
-}
-
-/// Small, stable hash for cache file names (not security-relevant).
-fn fnv(s: &str) -> u64 {
-    s.bytes().fold(0xcbf29ce484222325u64, |h, b| {
-        (h ^ b as u64).wrapping_mul(0x100000001b3)
-    })
 }
 
 #[cfg(test)]

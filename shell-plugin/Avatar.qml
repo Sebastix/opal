@@ -6,6 +6,8 @@ import qs.Commons
 Item {
   id: root
   property string picture: ""
+  // OpalService, which fetches the picture (see RemoteImage).
+  property var svc: null
   property real size: Style.space(32)
   property color foreground: Color.foreground
 
@@ -27,16 +29,15 @@ Item {
     }
   }
 
-  Image {
+  RemoteImage {
     id: img
     anchors.fill: parent
-    // Remote pictures come from strangers: https only.
-    source: root.picture.indexOf("https://") === 0 ? root.picture : ""
+    svc: root.svc
+    // Pictures come from strangers: https only.
+    url: root.picture.indexOf("https://") === 0 ? root.picture : ""
     sourceSize.width: root.size * 2
     sourceSize.height: root.size * 2
     fillMode: Image.PreserveAspectCrop
-    asynchronous: true
-    cache: true
     visible: false
   }
 

@@ -74,18 +74,19 @@ Column {
       radius: Style.space(4)
       color: Style.selectedFillFor(root.foreground, Color.accent)
       clip: true
-      Image {
+      RemoteImage {
+        id: art
         anchors.fill: parent
-        source: root.np && root.np.art_url && (root.np.art_url.indexOf("https://") === 0 || root.np.art_url.indexOf("file://") === 0) ? root.np.art_url : ""
+        svc: root.svc
+        url: root.np && root.np.art_url ? root.np.art_url : ""
         fillMode: Image.PreserveAspectCrop
-        asynchronous: true
         sourceSize.width: 96
         sourceSize.height: 96
       }
       Text {
         textFormat: Text.PlainText
         anchors.centerIn: parent
-        visible: !root.np || !root.np.art_url
+        visible: art.status !== Image.Ready
         text: "󰝚"
         color: root.foreground
         font.family: Style.font.family

@@ -10,6 +10,7 @@ mod notify;
 mod profiles;
 mod signers;
 mod tasks;
+mod thumbs;
 
 use std::path::PathBuf;
 
@@ -37,8 +38,17 @@ struct Args {
     memory_keyring: bool,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<std::process::ExitCode> {
+    // The picture decoder (see thumbs.rs): a fresh process, before any
+    // runtime, keys or sockets exist in it.
+    if std::env::args_os().nth(1).is_some_and(|a| a == "thumbnail") {
+        return Ok(thumbs::child_main());
+    }
+    tokio::runtime::Runtime::new()?.block_on(run())?;
+    Ok(std::process::ExitCode::SUCCESS)
+}
+
+async fn run() -> Result<()> {
     // Decrypted keys live in this process: no core dumps (which any process
     // of this user could read) and no /proc/<pid>/mem access from the same
     // user. The unit also sets LimitCORE=0.

@@ -247,6 +247,7 @@ Item {
             width: parent.width
             spacing: Style.space(10)
             Avatar {
+              svc: root.svc
               anchors.verticalCenter: parent.verticalCenter
               size: Style.space(36)
               foreground: root.foreground

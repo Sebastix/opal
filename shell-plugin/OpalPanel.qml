@@ -110,6 +110,7 @@ Item {
           implicitHeight: Math.max(avatar.height, headerText.implicitHeight)
 
           Avatar {
+            svc: root.svc
             id: avatar
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter

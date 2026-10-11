@@ -181,6 +181,28 @@ Item {
     if (g && !g.inFlight && g.onCancel) g.onCancel()
   }
 
+  // A picture someone else chose (a profile picture, album art), as a small
+  // PNG the daemon made: done(path), or done("") if there isn't one. Asked
+  // once per URL; a failed call (not signed in yet, say) is asked again.
+  property var _thumbs: ({})
+  property var _thumbWaiters: ({})
+
+  function thumbnail(url, done) {
+    if (url in _thumbs) { done(_thumbs[url]); return }
+    if (_thumbWaiters[url]) { _thumbWaiters[url].push(done); return }
+    _thumbWaiters[url] = [done]
+    call("image.thumbnail", { url: url }, function(err, r) {
+      var path = !err && r && r.path ? r.path : ""
+      if (!err) _thumbs[url] = path
+      var waiting = _thumbWaiters[url] || []
+      delete _thumbWaiters[url]
+      for (var i = 0; i < waiting.length; i++) waiting[i](path)
+    })
+  }
+
+  // The file went (the cache was pruned): ask again next time.
+  function forgetThumbnail(url) { delete _thumbs[url] }
+
   // call() with a toast on error and an optional success callback.
   function run(method, params, onOk) {
     call(method, params, function(err, result) {
