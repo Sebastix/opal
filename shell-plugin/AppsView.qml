@@ -86,7 +86,7 @@ Column {
     Row {
       width: parent.width
       spacing: Style.space(8)
-      TextField {
+      Field {
         id: bunkerName
         width: parent.width - newButton.width - parent.spacing
         placeholderText: "App name (optional)"
@@ -169,7 +169,7 @@ Column {
     Row {
       width: parent.width
       spacing: Style.space(8)
-      TextField {
+      Field {
         id: connectField
         width: parent.width - connectButton.width - parent.spacing
         placeholderText: "…or paste a nostrconnect:// link"
@@ -319,7 +319,7 @@ Column {
     Row {
       width: parent.width
       spacing: Style.space(8)
-      TextField {
+      Field {
         id: nameField
         width: parent.width - saveName.width - parent.spacing
         placeholderText: "App name"

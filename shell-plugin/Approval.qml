@@ -302,7 +302,7 @@ Item {
           }
 
           // ── Unlock ─────────────────────────────────────────────
-          TextField {
+          Field {
             id: passField
             width: parent.width
             visible: root.mode === "unlock"

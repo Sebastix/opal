@@ -267,6 +267,7 @@ dist                 systemd unit, link handler, install/uninstall scripts, know
 docs/nip-scrobble.md draft NIP for kind 1073 scrobbles
 tests/install        installer tests (sandboxed HOME, stubbed systemctl/omarchy)
 tests/interop        nostr-tools BunkerSigner against the signer
+tests/qml            headless tests for plugin QML (Qt's qmltestrunner)
 ```
 
 ## Development
@@ -276,6 +277,7 @@ cargo test                                             # unit + end-to-end tests
 cargo test -p opal-core --test keyring -- --ignored    # real Secret Service
 (cd tests/interop && npm install && npm test)          # nostr-tools interop
 tests/install/run.sh                                   # install/uninstall against a sandboxed home
+tests/qml/run.sh                                       # plugin QML, headless
 ./dist/dev-plugin.sh                                   # sync the shell plugin and reload it
 ```
 

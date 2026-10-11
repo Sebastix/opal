@@ -53,7 +53,7 @@ Column {
   Row {
     width: parent.width
     spacing: Style.space(8)
-    TextField {
+    Field {
       id: field
       width: parent.width - unlockButton.width - parent.spacing
       password: true

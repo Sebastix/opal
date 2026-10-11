@@ -301,7 +301,7 @@ Item {
           Row {
             width: parent.width
             spacing: Style.space(8)
-            TextField {
+            Field {
               id: guardField
               width: parent.width - guardOk.width - guardCancel.width - 2 * parent.spacing
               password: true

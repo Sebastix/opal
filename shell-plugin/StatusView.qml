@@ -149,7 +149,7 @@ Column {
       onClicked: root.svc.run("status.clear", null, function() { root.svc.refreshStatus() })
     }
   }
-  TextField {
+  Field {
     id: statusField
     width: parent.width
     visible: root.running
@@ -158,7 +158,7 @@ Column {
     onAccepted: root.setStatus()
     Keys.onEscapePressed: focus = false
   }
-  TextField {
+  Field {
     id: linkField
     width: parent.width
     visible: root.running && statusField.text !== ""

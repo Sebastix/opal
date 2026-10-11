@@ -83,7 +83,7 @@ Column {
     font.pixelSize: Style.font.bodySmall
     text: "Read-only: see notifications for anyone, no key needed. Enter an npub or a NIP-05 address like you@example.com. You can add your key later to sign and read DMs."
   }
-  TextField {
+  Field {
     id: watchField
     width: parent.width
     visible: root.mode === "watch"
@@ -92,7 +92,7 @@ Column {
     onAccepted: root.submit()
   }
 
-  TextField {
+  Field {
     id: secret
     width: parent.width
     visible: root.mode === "import"
@@ -100,7 +100,7 @@ Column {
     placeholderText: "nsec, ncryptsec or recovery phrase"
     foreground: root.foreground
   }
-  TextField {
+  Field {
     id: ncPass
     width: parent.width
     visible: root.mode === "import" && root.isNcryptsec
@@ -108,7 +108,7 @@ Column {
     placeholderText: "Password of that ncryptsec"
     foreground: root.foreground
   }
-  TextField {
+  Field {
     id: nickname
     width: parent.width
     visible: root.mode !== "watch"
@@ -121,7 +121,7 @@ Column {
     text: "OPAL PASSPHRASE"
     foreground: root.dim
   }
-  TextField {
+  Field {
     id: pass1
     visible: root.mode !== "watch"
     width: parent.width
@@ -129,7 +129,7 @@ Column {
     placeholderText: "Passphrase (a few random words)"
     foreground: root.foreground
   }
-  TextField {
+  Field {
     id: pass2
     visible: root.mode !== "watch"
     width: parent.width

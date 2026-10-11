@@ -102,7 +102,7 @@ Column {
     width: parent.width
     visible: root.idMode === "external"
     spacing: Style.space(8)
-    TextField {
+    Field {
       id: bunkerField
       width: parent.width - bunkerButton.width - parent.spacing
       placeholderText: "bunker://… from Amber or another signer"
@@ -444,7 +444,7 @@ Column {
       foreground: root.foreground
       onChanged: function(v) { root.set({ status: { music_link: v } }) }
     }
-    TextField {
+    Field {
       width: parent.w
       placeholderText: "Ignore players (comma separated, e.g. chromium, mpv)"
       text: (parent.st.players_blocked || []).join(", ")
@@ -505,21 +505,21 @@ Column {
     Row {
       width: parent.w
       spacing: Style.space(6)
-      TextField {
+      Field {
         width: (parent.width - 2 * parent.spacing) / 3
         placeholderText: "Meeting text"
         text: parent.parent.st.calendar_text || ""
         foreground: root.foreground
         onAccepted: if (text.trim() !== "") root.set({ status: { calendar_text: text.trim() } })
       }
-      TextField {
+      Field {
         width: (parent.width - 2 * parent.spacing) / 3
         placeholderText: "Away text"
         text: parent.parent.st.away_text || ""
         foreground: root.foreground
         onAccepted: if (text.trim() !== "") root.set({ status: { away_text: text.trim() } })
       }
-      TextField {
+      Field {
         width: (parent.width - 2 * parent.spacing) / 3
         placeholderText: "Focus text"
         text: parent.parent.st.focus_text || ""
@@ -542,9 +542,9 @@ Column {
     width: parent.width
     visible: root.hasKey && root.changingPass
     spacing: Style.space(8)
-    TextField { id: oldPass; width: parent.width; password: true; placeholderText: "Current passphrase"; foreground: root.foreground }
-    TextField { id: newPass; width: parent.width; password: true; placeholderText: "New passphrase"; foreground: root.foreground }
-    TextField { id: newPass2; width: parent.width; password: true; placeholderText: "Repeat new passphrase"; foreground: root.foreground; onAccepted: root.changePassphrase() }
+    Field { id: oldPass; width: parent.width; password: true; placeholderText: "Current passphrase"; foreground: root.foreground }
+    Field { id: newPass; width: parent.width; password: true; placeholderText: "New passphrase"; foreground: root.foreground }
+    Field { id: newPass2; width: parent.width; password: true; placeholderText: "Repeat new passphrase"; foreground: root.foreground; onAccepted: root.changePassphrase() }
     Text {
       textFormat: Text.PlainText
       width: parent.width

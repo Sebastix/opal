@@ -237,7 +237,7 @@ Column {
     Row {
       width: parent.width
       spacing: Style.space(8)
-      TextField {
+      Field {
         id: deletePass
         width: parent.width - deleteButton.width - deleteCancel.width - 2 * parent.spacing
         password: true
@@ -324,7 +324,7 @@ Column {
       font.pixelSize: Style.font.bodySmall
       text: "See notifications for anyone, no key needed. Enter an npub or a NIP-05 address like you@example.com."
     }
-    TextField {
+    Field {
       id: secret
       width: parent.width
       visible: root.addMode !== "generate"
@@ -333,7 +333,7 @@ Column {
       foreground: root.foreground
       onAccepted: if (root.addMode === "read-only") root.add()
     }
-    TextField {
+    Field {
       id: ncPass
       width: parent.width
       visible: root.addMode === "import" && secret.text.trim().indexOf("ncryptsec1") === 0
@@ -341,14 +341,14 @@ Column {
       placeholderText: "Password of that ncryptsec"
       foreground: root.foreground
     }
-    TextField {
+    Field {
       id: nick
       width: parent.width
       visible: root.addMode !== "read-only"
       placeholderText: "Nickname (optional)"
       foreground: root.foreground
     }
-    TextField {
+    Field {
       id: pass
       width: parent.width
       visible: root.addMode !== "read-only"
