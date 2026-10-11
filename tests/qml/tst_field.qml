@@ -1,5 +1,6 @@
 import QtQuick
 import QtTest
+import Quickshell.Io
 import "../../shell-plugin"
 
 Item {
@@ -10,6 +11,7 @@ Item {
   TextInput { id: src; y: 200; width: 300 }
 
   SignalSpy { id: accepted; target: a; signalName: "accepted" }
+  SignalSpy { id: flips; target: a; signalName: "readOnlyChanged" }
 
   TestCase {
     name: "Field"; when: windowShown
@@ -18,8 +20,12 @@ Item {
       src.forceActiveFocus()
       a.text = ""; b.text = ""; pw.text = ""
       a._undo = []; a._redo = []
-      accepted.clear()
+      accepted.clear(); flips.clear()
+      FakeClipboard.text = ""; FakeClipboard.code = 0; FakeClipboard.hang = false
+      FakeClipboard.runs = 0; FakeClipboard.lastCommand = []
     }
+
+    function cleanup() { compare(flips.count, 0, "never left read-only") }
 
     function offer(t) { src.text = t; src.selectAll(); src.copy(); src.deselect() }
 
@@ -68,18 +74,68 @@ Item {
       compare(a.text.charAt(at), "x")
     }
 
-    function test_paste_goes_in_at_the_cursor() {
-      offer("PASTED")
+    function paste(field) {
+      const runs = FakeClipboard.runs
+      keyClick(Qt.Key_V, Qt.ControlModifier)
+      compare(FakeClipboard.runs, runs + 1, "asked read-clipboard.sh")
+      tryCompare(field, "_reading", null)
+    }
+
+    function test_paste_reads_through_the_bounded_script() {
+      offer("Qt's own clipboard")
+      FakeClipboard.text = "PASTED"
       a.text = "one two"
       a.forceActiveFocus()
       a.cursorPosition = 3
-      keyClick(Qt.Key_V, Qt.ControlModifier)
+      paste(a)
       compare(a.text, "onePASTED two")
       compare(a.cursorPosition, 9)
-      verify(a.readOnly)
+      verify(!a.canPaste, "Qt's reader never ran")
+      const c = FakeClipboard.lastCommand
+      compare(c[0], "bash")
+      verify(/\/shell-plugin\/read-clipboard\.sh$/.test(c[1]), c[1])
+      compare(c[2], "16384"); compare(c[3], "2")
       a.select(0, 3)
-      keyClick(Qt.Key_V, Qt.ControlModifier)
+      paste(a)
       compare(a.text, "PASTEDPASTED two", "paste replaces the selection")
+      keyClick(Qt.Key_Insert, Qt.ShiftModifier)
+      tryCompare(a, "_reading", null)
+      compare(a.text, "PASTEDPASTEDPASTED two", "Shift+Insert pastes too")
+    }
+
+    function test_paste_refuses_what_it_shouldnt_take() {
+      a.forceActiveFocus()
+      FakeClipboard.text = "x".repeat(16385)
+      paste(a)
+      compare(a.text, "", "over the limit: refused, not cut off")
+      FakeClipboard.text = "é".repeat(8193)
+      paste(a)
+      compare(a.text, "", "the limit is bytes, not characters")
+      FakeClipboard.text = "x".repeat(16384)
+      paste(a)
+      compare(a.text.length, 16384, "up to the limit is fine")
+      a.text = ""
+      FakeClipboard.text = "partial"; FakeClipboard.code = 124
+      paste(a)
+      compare(a.text, "", "a failed or timed-out read puts nothing in")
+      FakeClipboard.text = "line one\r\nline two\tend\u0007"; FakeClipboard.code = 0
+      paste(a)
+      compare(a.text, "line one line two end", "made one line")
+    }
+
+    function test_a_hung_paste_is_given_up_on() {
+      a.forceActiveFocus()
+      FakeClipboard.hang = true
+      keyClick(Qt.Key_V, Qt.ControlModifier)
+      verify(a._reading !== null)
+      keyClick(Qt.Key_V, Qt.ControlModifier)
+      compare(FakeClipboard.runs, 1, "one read at a time")
+      type("ok")
+      compare(a.text, "ok", "typing goes on meanwhile")
+      tryCompare(a, "_reading", null, 6000)
+      FakeClipboard.hang = false; FakeClipboard.text = "!"
+      paste(a)
+      compare(a.text, "ok!")
     }
 
     function test_cut_and_undo() {
@@ -88,9 +144,9 @@ Item {
       a.select(0, 2)
       keyClick(Qt.Key_X, Qt.ControlModifier)
       compare(a.text, "c")
-      b.forceActiveFocus()
-      keyClick(Qt.Key_V, Qt.ControlModifier)
-      compare(b.text, "ab", "cut copies")
+      src.text = ""
+      src.paste()
+      compare(src.text, "ab", "cut copies")
       a.forceActiveFocus()
       keyClick(Qt.Key_Z, Qt.ControlModifier)
       compare(a.text, "abc")
